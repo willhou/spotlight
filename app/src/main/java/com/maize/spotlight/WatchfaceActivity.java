@@ -18,6 +18,10 @@ import android.view.SurfaceView;
 
 import java.util.Calendar;
 
+/**
+ * @author Will Hou (will@ezi.am)
+ * @date Sept 9, 2014
+ */
 public class WatchfaceActivity extends Activity implements SurfaceHolder.Callback {
 
     private static final IntentFilter INTENT_FILTER_TIME;
@@ -29,6 +33,9 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
     private SurfaceView mSurfaceView;
     private Canvas mCanvas;
     private Paint mLinePaint;
+    private Paint mHourPaint;
+    private Paint mHalfHourPaint;
+    private Paint mTenMinutePaint;
 
     static {
         INTENT_FILTER_TIME = new IntentFilter();
@@ -67,6 +74,20 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
         mLinePaint.setColor(0xFFFF6600);
         mLinePaint.setStyle(Style.STROKE);
         mLinePaint.setStrokeWidth(2f);
+
+        mHourPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mHourPaint.setAntiAlias(true);
+        mHourPaint.setColor(Color.BLACK);
+        mHourPaint.setStyle(Style.STROKE);
+        mHourPaint.setStrokeWidth(2f);
+
+        mHalfHourPaint = mHourPaint;
+
+        mTenMinutePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mTenMinutePaint.setAntiAlias(true);
+        mTenMinutePaint.setColor(Color.BLACK);
+        mTenMinutePaint.setStyle(Style.STROKE);
+        mTenMinutePaint.setStrokeWidth(1f);
     }
 
     @Override
@@ -113,16 +134,50 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
         // Draw background color
         mCanvas.drawColor(Color.WHITE);
 
-        // Draw red minute "needle"
         Path path = new Path();
-        path.moveTo(0, 160);
+
+        float centerX = 0;
+        float centerY = 0;
+
+        //Draw clock face
+        for (int i = 0; i < 12; i++) {
+            // Draw hour indicators
+            path.reset();
+            path.moveTo(centerX, centerY - 160);
+            path.lineTo(centerX, centerY - 160 + 24);
+            mCanvas.save();
+            mCanvas.rotate(i * 30, centerX, centerY);
+            mCanvas.drawPath(path, mHourPaint);
+            // Draw half-hour indicators
+            path.reset();
+            path.moveTo(centerX, centerY - 160);
+            path.lineTo(centerX, centerY - 160 + 16);
+            mCanvas.rotate(15, centerX, centerY);
+            mCanvas.drawPath(path, mHalfHourPaint);
+            mCanvas.restore();
+        }
+
+        for (int i = 0; i < 24; i++) {
+            // Draw 10min indicators
+            path.reset();
+            path.moveTo(centerX, centerY - 160);
+            path.lineTo(centerX, centerY - 160 + 4);
+            mCanvas.save();
+            mCanvas.rotate(i * 15 + 5, centerX, centerY);
+            mCanvas.drawPath(path, mTenMinutePaint);
+            mCanvas.rotate(5, centerX, centerY);
+            mCanvas.drawPath(path, mTenMinutePaint);
+            mCanvas.restore();
+        }
+
+        // Draw red minute "needle"
+        path.reset();
+        path.moveTo(-66, 160);
         path.lineTo(455, 160);
         mCanvas.save();
         mCanvas.rotate(degrees, 160, 160);
         mCanvas.drawPath(path, mLinePaint);
         mCanvas.restore();
-
-        //Draw clock face
 
         mSurfaceHolder.unlockCanvasAndPost(mCanvas);
     }
