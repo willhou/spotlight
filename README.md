@@ -1,7 +1,7 @@
 Spotlight
 =========
 
-Spotlight Android watchface
+Spotlight Android Wear watchface
 
 ![Demo gif](/art/demo.gif)
 
