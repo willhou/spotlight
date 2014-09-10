@@ -29,7 +29,7 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
     private static final int ONE_HOUR_IN_MIN = 60;
     private static final float MIN_PER_DEGREE = HALF_DAY_IN_MIN / 360f;
     private static final int CENTER_OFFSET = 240;
-    private static final int CLOCKFACE_RADIUS = 320;
+    private static final int CLOCKFACE_RADIUS = 300;
 
     private SurfaceHolder mSurfaceHolder;
     private SurfaceView mSurfaceView;
@@ -38,6 +38,7 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
     private Paint mHourPaint;
     private Paint mHalfHourPaint;
     private Paint mTenMinutePaint;
+    private Paint mHourTextPaint;
 
     static {
         INTENT_FILTER_TIME = new IntentFilter();
@@ -47,7 +48,6 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
     }
 
     public BroadcastReceiver mTimeInfoReceiver = new BroadcastReceiver() {
-        final private String TAG = "WearFaceMatrix/timeInfoReceiver";
         @Override
         public void onReceive(Context arg0, Intent intent) {
             onDraw();
@@ -75,21 +75,28 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
         mLinePaint.setAntiAlias(true);
         mLinePaint.setColor(0xAAFF6600);
         mLinePaint.setStyle(Style.STROKE);
-        mLinePaint.setStrokeWidth(2f);
+        mLinePaint.setStrokeWidth(4f);
 
         mHourPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mHourPaint.setAntiAlias(true);
-        mHourPaint.setColor(Color.BLACK);
+        mHourPaint.setColor(Color.WHITE);
         mHourPaint.setStyle(Style.STROKE);
-        mHourPaint.setStrokeWidth(2f);
+        mHourPaint.setStrokeWidth(3f);
 
         mHalfHourPaint = mHourPaint;
 
         mTenMinutePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mTenMinutePaint.setAntiAlias(true);
-        mTenMinutePaint.setColor(Color.BLACK);
+        mTenMinutePaint.setColor(Color.WHITE);
         mTenMinutePaint.setStyle(Style.STROKE);
-        mTenMinutePaint.setStrokeWidth(1f);
+        mTenMinutePaint.setStrokeWidth(2f);
+
+        mHourTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mHourTextPaint.setAntiAlias(true);
+        mHourTextPaint.setColor(Color.WHITE);
+        mHourTextPaint.setStyle(Paint.Style.FILL);
+        mHourTextPaint.setTextSize(getResources().getDimensionPixelSize(R.dimen.hour_text_size));
+        mHourTextPaint.setTextAlign(Paint.Align.CENTER);
     }
 
     @Override
@@ -123,6 +130,9 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
         int hour = c.get(Calendar.HOUR);
         int minute = c.get(Calendar.MINUTE);
 
+        hour = 12;
+        minute = 0;
+
         Log.d("asdf", "hour: " + hour);
         Log.d("asdf", "minute: " + minute);
 
@@ -133,16 +143,16 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
         Log.d("asdf", "degrees: " + degrees);
 
         // Draw background color
-        mCanvas.drawColor(Color.WHITE);
+        mCanvas.drawColor(Color.BLACK);
 
         Path path = new Path();
 
         float centerX, centerY;
 
-        if (hour == 0 || hour == 12) {
+        if ((hour == 0 || hour == 12) && minute == 0) {
             centerX = 160;
             centerY = 160 + CENTER_OFFSET;
-        } else if (hour == 6) {
+        } else if (hour == 6 && minute == 0) {
             centerX = 160;
             centerY = 160 - CENTER_OFFSET;
         } else {
@@ -159,13 +169,27 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
 
         //Draw clock face
         for (int i = 0; i < 12; i++) {
+            float rotation = i * 30;
             // Draw hour indicators
             path.reset();
             path.moveTo(centerX, centerY - CLOCKFACE_RADIUS);
-            path.lineTo(centerX, centerY - CLOCKFACE_RADIUS + 24);
+            path.lineTo(centerX, centerY - CLOCKFACE_RADIUS + 32);
             mCanvas.save();
-            mCanvas.rotate(i * 30, centerX, centerY);
+            mCanvas.rotate(rotation, centerX, centerY);
             mCanvas.drawPath(path, mHourPaint);
+
+            // Draw hour text
+            float textCenterX = centerX;
+            float textCenterY = centerY - CLOCKFACE_RADIUS + 64;
+            mCanvas.save();
+            mCanvas.rotate(-rotation, centerX, textCenterY);
+            mCanvas.drawText(
+                    String.valueOf(i > 0 ? i : 12),
+                    textCenterX,
+                    textCenterY + 12,
+                    mHourTextPaint);
+            mCanvas.restore();
+
             // Draw half-hour indicators
             path.reset();
             path.moveTo(centerX, centerY - CLOCKFACE_RADIUS);
@@ -179,7 +203,7 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
             // Draw 10min indicators
             path.reset();
             path.moveTo(centerX, centerY - CLOCKFACE_RADIUS);
-            path.lineTo(centerX, centerY - CLOCKFACE_RADIUS + 4);
+            path.lineTo(centerX, centerY - CLOCKFACE_RADIUS + 8);
             mCanvas.save();
             mCanvas.rotate(i * 15 + 5, centerX, centerY);
             mCanvas.drawPath(path, mTenMinutePaint);
