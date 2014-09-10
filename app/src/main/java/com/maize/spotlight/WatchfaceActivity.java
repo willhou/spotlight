@@ -130,9 +130,6 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
         int hour = c.get(Calendar.HOUR);
         int minute = c.get(Calendar.MINUTE);
 
-        hour = 12;
-        minute = 0;
-
         Log.d("asdf", "hour: " + hour);
         Log.d("asdf", "minute: " + minute);
 
