@@ -28,6 +28,8 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
     private static final int HALF_DAY_IN_MIN = 720;
     private static final int ONE_HOUR_IN_MIN = 60;
     private static final float MIN_PER_DEGREE = HALF_DAY_IN_MIN / 360f;
+    private static final int CENTER_OFFSET = 240;
+    private static final int CLOCKFACE_RADIUS = 320;
 
     private SurfaceHolder mSurfaceHolder;
     private SurfaceView mSurfaceView;
@@ -71,7 +73,7 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
 
         mLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mLinePaint.setAntiAlias(true);
-        mLinePaint.setColor(0xFFFF6600);
+        mLinePaint.setColor(0xAAFF6600);
         mLinePaint.setStyle(Style.STROKE);
         mLinePaint.setStrokeWidth(2f);
 
@@ -129,29 +131,45 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
 
         Log.d("asdf", "totalMinutes: " + totalMinutes);
         Log.d("asdf", "degrees: " + degrees);
-        Log.d("asdf", "===============================");
 
         // Draw background color
         mCanvas.drawColor(Color.WHITE);
 
         Path path = new Path();
 
-        float centerX = 0;
-        float centerY = 0;
+        float centerX, centerY;
+
+        if (hour == 0 || hour == 12) {
+            centerX = 160;
+            centerY = 160 + CENTER_OFFSET;
+        } else if (hour == 6) {
+            centerX = 160;
+            centerY = 160 - CENTER_OFFSET;
+        } else {
+            boolean beforeSix = hour < 6;
+            centerX = beforeSix ?
+                    160 + (float) (CENTER_OFFSET * Math.cos(Math.toRadians(180 - degrees))) :
+                    160 + (float) (CENTER_OFFSET * Math.cos(Math.toRadians(degrees - 180)));
+            centerY = beforeSix ?
+                    160 - (float) (CENTER_OFFSET * Math.sin(Math.toRadians(180 - degrees))) :
+                    160 + (float) (CENTER_OFFSET * Math.sin(Math.toRadians(degrees - 180)));
+        }
+
+        Log.d("asdf", "center: " + centerX + ", " + centerY);
 
         //Draw clock face
         for (int i = 0; i < 12; i++) {
             // Draw hour indicators
             path.reset();
-            path.moveTo(centerX, centerY - 160);
-            path.lineTo(centerX, centerY - 160 + 24);
+            path.moveTo(centerX, centerY - CLOCKFACE_RADIUS);
+            path.lineTo(centerX, centerY - CLOCKFACE_RADIUS + 24);
             mCanvas.save();
             mCanvas.rotate(i * 30, centerX, centerY);
             mCanvas.drawPath(path, mHourPaint);
             // Draw half-hour indicators
             path.reset();
-            path.moveTo(centerX, centerY - 160);
-            path.lineTo(centerX, centerY - 160 + 16);
+            path.moveTo(centerX, centerY - CLOCKFACE_RADIUS);
+            path.lineTo(centerX, centerY - CLOCKFACE_RADIUS + 16);
             mCanvas.rotate(15, centerX, centerY);
             mCanvas.drawPath(path, mHalfHourPaint);
             mCanvas.restore();
@@ -160,8 +178,8 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
         for (int i = 0; i < 24; i++) {
             // Draw 10min indicators
             path.reset();
-            path.moveTo(centerX, centerY - 160);
-            path.lineTo(centerX, centerY - 160 + 4);
+            path.moveTo(centerX, centerY - CLOCKFACE_RADIUS);
+            path.lineTo(centerX, centerY - CLOCKFACE_RADIUS + 4);
             mCanvas.save();
             mCanvas.rotate(i * 15 + 5, centerX, centerY);
             mCanvas.drawPath(path, mTenMinutePaint);
@@ -178,6 +196,8 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
         mCanvas.rotate(degrees, 160, 160);
         mCanvas.drawPath(path, mLinePaint);
         mCanvas.restore();
+
+        Log.d("asdf", "===============================");
 
         mSurfaceHolder.unlockCanvasAndPost(mCanvas);
     }
