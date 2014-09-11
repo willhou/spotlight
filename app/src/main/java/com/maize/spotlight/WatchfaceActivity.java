@@ -75,7 +75,7 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
         mLinePaint.setAntiAlias(true);
         mLinePaint.setColor(0xAAFF6600);
         mLinePaint.setStyle(Style.STROKE);
-        mLinePaint.setStrokeWidth(4f);
+        mLinePaint.setStrokeWidth(3f);
 
         mHourPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mHourPaint.setAntiAlias(true);
