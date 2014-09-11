@@ -94,7 +94,7 @@ public class WatchfaceActivity extends Activity implements SurfaceHolder.Callbac
         mHourTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mHourTextPaint.setAntiAlias(true);
         mHourTextPaint.setColor(Color.WHITE);
-        mHourTextPaint.setStyle(Paint.Style.FILL);
+        mHourTextPaint.setStyle(Style.FILL);
         mHourTextPaint.setTextSize(getResources().getDimensionPixelSize(R.dimen.hour_text_size));
         mHourTextPaint.setTextAlign(Paint.Align.CENTER);
     }
