@@ -1,8 +1,16 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <style name="Theme.Maize" parent="android:Theme.Holo.Light">
+        <item name="android:actionBarStyle">@style/Widget.Maize.ActionBar</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <style name="Widget.Maize.ActionBar" parent="android:Widget.DeviceDefault.Light.ActionBar.Solid">
+        <item name="android:titleTextStyle">@style/TextAppearance.Maize.ActionBar.Title</item>
+    </style>
+
+    <style name="TextAppearance.Maize.ActionBar.Title" parent="android:TextAppearance.DeviceDefault.Widget.ActionBar.Title">
+        <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
 </resources>

@@ -1,11 +1,11 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 20
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "com.maize.spotlight"
+        applicationId "com.maize.watchface.spotlight"
         minSdkVersion 18
         targetSdkVersion 20
         versionCode 1
@@ -21,7 +21,4 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    wearApp project(':wear')
-    compile project(':watchface')
-    compile 'com.google.android.gms:play-services:+'
 }
