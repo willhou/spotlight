@@ -1,7 +1,7 @@
 Spotlight
 =========
 
-Spotlight Android Wear watchface
+Spotlight Android Wear watchface. Download it from [Google Play](https://play.google.com/store/apps/details?id=com.maize.spotlight)
 
 ![Demo gif](/art/demo.gif)
 
