@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.wearable.view.WatchViewStub;
 
 import com.maize.watchface.spotlight.WatchfaceView;
 
@@ -39,7 +40,14 @@ public class WatchfaceActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_watchface);
-        mWatchfaceView = (WatchfaceView) findViewById(R.id.face);
+
+        final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
+        stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
+            @Override
+            public void onLayoutInflated(WatchViewStub stub) {
+                mWatchfaceView = (WatchfaceView) stub.findViewById(R.id.face);
+            }
+        });
 
         mTimeInfoReceiver.onReceive(this, registerReceiver(null, INTENT_FILTER_TIME));
         registerReceiver(mTimeInfoReceiver, INTENT_FILTER_TIME);
