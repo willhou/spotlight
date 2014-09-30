@@ -11,6 +11,9 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    aaptOptions {
+        noCompress "apk"
+    }
     buildTypes {
         release {
             runProguard false
@@ -23,5 +26,5 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     wearApp project(':wear')
     compile project(':watchface')
-    compile 'com.google.android.gms:play-services:+'
+    compile 'com.google.android.gms:play-services:5.0.+'
 }

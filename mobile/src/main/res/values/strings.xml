@@ -2,5 +2,7 @@
 <resources>
 
     <string name="app_name">Spotlight Settings</string>
+    <string name="cancel">Cancel</string>
+    <string name="update">Update</string>
 
 </resources>
