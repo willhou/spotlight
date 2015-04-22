@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">Spotlight Settings</string>
+    <string name="coming_soon">Customizations coming soon...</string>
     <string name="cancel">Cancel</string>
     <string name="update">Update</string>
 
