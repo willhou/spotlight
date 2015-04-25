@@ -1,5 +1,9 @@
 package com.maize.spotlight;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -8,11 +12,13 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.wearable.watchface.CanvasWatchFaceService;
+import android.support.wearable.watchface.WatchFaceStyle;
+import android.text.format.Time;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.SurfaceHolder;
 
-import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  * @author Will Hou (will@ezi.am)
@@ -49,9 +55,28 @@ public class WatchfaceService extends CanvasWatchFaceService {
         private int mBackgroundColor;
         private int mAccentColor;
 
+        private boolean mRegisteredTimeZoneReceiver = false;
+
+        private Time mTime;
+
+        final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                mTime.clear(intent.getStringExtra("time-zone"));
+                mTime.setToNow();
+            }
+        };
+
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
+
+            setWatchFaceStyle(new WatchFaceStyle.Builder(WatchfaceService.this)
+                    .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
+                    .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
+                    .setShowSystemUiTime(false)
+                    .build());
+
             /* initialize your watch face */
             mBackgroundColor = Color.BLACK;
             mAccentColor = 0xAAFF6600;
@@ -82,33 +107,52 @@ public class WatchfaceService extends CanvasWatchFaceService {
             mHourTextPaint.setStyle(Style.FILL);
             mHourTextPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, metrics));
             mHourTextPaint.setTextAlign(Paint.Align.CENTER);
+
+            mTime = new Time();
         }
 
         @Override
         public void onPropertiesChanged(Bundle properties) {
             super.onPropertiesChanged(properties);
             /* get device features (burn-in, low-bit ambient) */
+            invalidate();
         }
 
         @Override
         public void onTimeTick() {
             super.onTimeTick();
-            /* the time changed */
             invalidate();
         }
 
         @Override
         public void onAmbientModeChanged(boolean inAmbientMode) {
             super.onAmbientModeChanged(inAmbientMode);
-            /* the wearable switched between modes */
+            invalidate();
+        }
+
+        @Override
+        public void onVisibilityChanged(boolean visible) {
+            super.onVisibilityChanged(visible);
+            if (visible) {
+                registerReceiver();
+
+                // Update time zone in case it changed while we weren't visible.
+                mTime.clear(TimeZone.getDefault().getID());
+                mTime.setToNow();
+            } else {
+                unregisterReceiver();
+            }
+
+            // Whether the timer should be running depends on whether we're visible (as well as
+            // whether we're in ambient mode), so we may need to start or stop the timer.
+            invalidate();
         }
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
             /* draw your watch face */
-            Calendar c = Calendar.getInstance();
-            int hour = c.get(Calendar.HOUR);
-            int minute = c.get(Calendar.MINUTE);
+            int hour = mTime.hour;
+            int minute = mTime.minute;
 
             final int totalMinutes = hour * ONE_HOUR_IN_MIN + minute;
             final float degrees = totalMinutes / MIN_PER_DEGREE - 90f;
@@ -197,10 +241,21 @@ public class WatchfaceService extends CanvasWatchFaceService {
             canvas.restore();
         }
 
-        @Override
-        public void onVisibilityChanged(boolean visible) {
-            super.onVisibilityChanged(visible);
-            /* the watch face became visible or invisible */
+        private void registerReceiver() {
+            if (mRegisteredTimeZoneReceiver) {
+                return;
+            }
+            mRegisteredTimeZoneReceiver = true;
+            IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
+            WatchfaceService.this.registerReceiver(mTimeZoneReceiver, filter);
+        }
+
+        private void unregisterReceiver() {
+            if (!mRegisteredTimeZoneReceiver) {
+                return;
+            }
+            mRegisteredTimeZoneReceiver = false;
+            WatchfaceService.this.unregisterReceiver(mTimeZoneReceiver);
         }
     }
 }
