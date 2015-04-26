@@ -6,6 +6,7 @@ Spotlight Android Wear watchface. Download it from [Google Play](https://play.go
 ![Demo graphic](/art/demo.png)
 
 Inspired by:
+
 ![Demo gif](/art/demo.gif)
 
 License
