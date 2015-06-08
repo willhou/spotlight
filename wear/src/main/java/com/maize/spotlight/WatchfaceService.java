@@ -12,10 +12,12 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.wearable.watchface.CanvasWatchFaceService;
+import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.Time;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.SurfaceHolder;
 
 import java.util.TimeZone;
@@ -57,6 +59,8 @@ public class WatchfaceService extends CanvasWatchFaceService {
 
         private boolean mRegisteredTimeZoneReceiver = false;
 
+        private boolean mMute;
+
         private Time mTime;
 
         final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
@@ -70,12 +74,8 @@ public class WatchfaceService extends CanvasWatchFaceService {
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
-
-            setWatchFaceStyle(new WatchFaceStyle.Builder(WatchfaceService.this)
-                    .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
-                    .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
-                    .setShowSystemUiTime(false)
-                    .build());
+            mMute = getInterruptionFilter() == INTERRUPTION_FILTER_NONE;
+            updateWatchFaceStyle();
 
             /* initialize your watch face */
             mBackgroundColor = Color.BLACK;
@@ -128,6 +128,17 @@ public class WatchfaceService extends CanvasWatchFaceService {
         public void onAmbientModeChanged(boolean inAmbientMode) {
             super.onAmbientModeChanged(inAmbientMode);
             invalidate();
+        }
+
+        @Override
+        public void onInterruptionFilterChanged(int interruptionFilter) {
+            super.onInterruptionFilterChanged(interruptionFilter);
+            boolean inMuteMode = interruptionFilter == WatchFaceService.INTERRUPTION_FILTER_NONE;
+            if (mMute != inMuteMode) {
+                mMute = inMuteMode;
+                updateWatchFaceStyle();
+                invalidate();
+            }
         }
 
         @Override
@@ -239,6 +250,18 @@ public class WatchfaceService extends CanvasWatchFaceService {
             canvas.rotate(degrees, viewCenterX, viewCenterY);
             canvas.drawPath(path, mLinePaint);
             canvas.restore();
+        }
+
+        private void updateWatchFaceStyle() {
+            setWatchFaceStyle(new WatchFaceStyle.Builder(WatchfaceService.this)
+                    .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
+                    .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
+                    .setPeekOpacityMode(WatchFaceStyle.PEEK_OPACITY_MODE_TRANSLUCENT)
+                    .setStatusBarGravity(Gravity.TOP | Gravity.CENTER)
+                    .setHotwordIndicatorGravity(Gravity.TOP | Gravity.CENTER)
+                    .setViewProtection(0)
+                    .setShowUnreadCountIndicator(mMute)
+                    .build());
         }
 
         private void registerReceiver() {
