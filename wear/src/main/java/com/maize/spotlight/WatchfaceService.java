@@ -161,7 +161,8 @@ public class WatchfaceService extends CanvasWatchFaceService {
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
-            /* draw your watch face */
+            // Update the time
+            mTime.setToNow();
             int hour = mTime.hour;
             int minute = mTime.minute;
 
