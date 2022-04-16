@@ -1,14 +1,16 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
 
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdk 31
 
     defaultConfig {
         applicationId "com.maize.spotlight"
-        minSdkVersion 21
-        targetSdkVersion 22
+        minSdk 25
+        targetSdk 31
         versionCode 2
         versionName "1.1"
     }
@@ -21,7 +23,9 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.google.android.support:wearable:1.1.0'
-    compile 'com.google.android.gms:play-services-wearable:7.0.0'
+    implementation 'com.google.android.gms:play-services-wearable:17.1.0'
+    implementation 'com.google.android.support:wearable:2.8.1'
+    implementation 'com.google.android.gms:play-services-base:18.0.1'
+    compileOnly 'com.google.android.wearable:wearable:2.8.1'
+    wearApp project(":wear")
 }
