@@ -27,5 +27,4 @@ dependencies {
     implementation 'com.google.android.support:wearable:2.8.1'
     implementation 'com.google.android.gms:play-services-base:18.0.1'
     compileOnly 'com.google.android.wearable:wearable:2.8.1'
-    wearApp project(":wear")
 }
