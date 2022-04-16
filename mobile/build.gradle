@@ -10,8 +10,8 @@ android {
         applicationId "com.maize.spotlight"
         minSdk 25
         targetSdk 31
-        versionCode 3
-        versionName "1.2"
+        versionCode 5
+        versionName "1.5"
     }
     buildTypes {
         release {
