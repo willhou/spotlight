@@ -10,12 +10,14 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
 import android.graphics.Rect;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.Time;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
@@ -42,11 +44,11 @@ public class WatchfaceService extends CanvasWatchFaceService {
         private static final int HALF_DAY_IN_MIN = 720;
         private static final int ONE_HOUR_IN_MIN = 60;
         private static final float MIN_PER_DEGREE = HALF_DAY_IN_MIN / 360f;
-        private static final float CENTER_OFFSET = 0.75f;
-        private static final float CLOCKFACE_RADIUS = 0.93f;
+        private static final float CENTER_OFFSET = 1.25f;
+        private static final float CLOCKFACE_RADIUS = 1.50f;
 
         private static final float HOUR_INDICATOR_SIZE_FACTOR = 0.1f;
-        private static final float HOUR_TEXT_SIZE_FACTOR = 0.2f;
+        private static final float HOUR_TEXT_SIZE_FACTOR = 0.25f;
         private static final float HALF_HOUR_INDICATOR_SIZE_FACTOR = 0.05f;
         private static final float TEN_MIN_INDICATOR_SIZE_FACTOR = 0.025f;
 
@@ -54,6 +56,7 @@ public class WatchfaceService extends CanvasWatchFaceService {
         private Paint mHourPaint;
         private Paint mTenMinutePaint;
         private Paint mHourTextPaint;
+        private Context mcontext;
         private int mBackgroundColor;
         private int mAccentColor;
 
@@ -79,25 +82,26 @@ public class WatchfaceService extends CanvasWatchFaceService {
 
             /* initialize your watch face */
             mBackgroundColor = Color.BLACK;
-            mAccentColor = 0xAAFF6600;
+            mcontext = getApplicationContext();
 
             mLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             mLinePaint.setAntiAlias(true);
             mLinePaint.setColor(mAccentColor);
             mLinePaint.setStyle(Style.STROKE);
-            mLinePaint.setStrokeWidth(3f);
+            mLinePaint.setStrokeWidth(5f); // custom
 
+            // custom stoke
             mHourPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             mHourPaint.setAntiAlias(true);
             mHourPaint.setColor(Color.WHITE);
             mHourPaint.setStyle(Style.STROKE);
-            mHourPaint.setStrokeWidth(3f);
+            mHourPaint.setStrokeWidth(5f);
 
             mTenMinutePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             mTenMinutePaint.setAntiAlias(true);
             mTenMinutePaint.setColor(Color.WHITE);
             mTenMinutePaint.setStyle(Style.STROKE);
-            mTenMinutePaint.setStrokeWidth(2f);
+            mTenMinutePaint.setStrokeWidth(1f);
 
             DisplayMetrics metrics = getResources().getDisplayMetrics();
 
@@ -105,7 +109,7 @@ public class WatchfaceService extends CanvasWatchFaceService {
             mHourTextPaint.setAntiAlias(true);
             mHourTextPaint.setColor(Color.WHITE);
             mHourTextPaint.setStyle(Style.FILL);
-            mHourTextPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, metrics));
+            mHourTextPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 35, metrics)); // font size custom
             mHourTextPaint.setTextAlign(Paint.Align.CENTER);
 
             mTime = new Time();
@@ -161,6 +165,27 @@ public class WatchfaceService extends CanvasWatchFaceService {
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
+            IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+            Intent batteryStatus = mcontext.registerReceiver(null, ifilter);
+            int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            Log.e(WatchfaceService.class.getSimpleName(), String.valueOf(status));
+
+            if (status < 20){
+                mAccentColor = 0xaaff0000; // red
+            }
+            if (status > 21 && status < 40){
+                mAccentColor = 0xaafc7921; // orange
+            }
+            if (status > 41 && status < 60){
+                mAccentColor = 0xaad0ff00; // yellow
+            }
+            if (status > 61 && status < 80){
+                mAccentColor = 0xaa00ff48; // green
+            }
+            if (status > 81){
+                mAccentColor = 0xaa00ffea; // mint
+            }
+            mLinePaint.setColor(mAccentColor);
             // Update the time
             mTime.setToNow();
             int hour = mTime.hour;
@@ -217,7 +242,7 @@ public class WatchfaceService extends CanvasWatchFaceService {
                 canvas.drawText(
                         String.valueOf(i > 0 ? i : 12),
                         textCenterX,
-                        textCenterY + 12,
+                        textCenterY + 15,
                         mHourTextPaint);
                 canvas.restore();
 
